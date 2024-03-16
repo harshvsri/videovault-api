@@ -5,6 +5,15 @@ const authenticate = require("../middlewares/authenticate.middleware");
 const isAuthenticated = require("../middlewares/isAuthenticated.middleware");
 
 /**
+ * @route GET /
+ * @access Public
+ * @desc Welcome message
+ */
+router.get("/", (req, res) => {
+  res.status(200).json({ message: "Welcome to the API" });
+});
+
+/**
  * @route POST /register
  * @access Public
  * @desc Register a new user
