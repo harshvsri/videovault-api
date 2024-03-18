@@ -14,6 +14,8 @@ const corsOptions = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
+  // Add the 'Access-Control-Allow-Origin' header
+  exposedHeaders: ['Access-Control-Allow-Origin'],
 };
 
 module.exports = corsOptions;
