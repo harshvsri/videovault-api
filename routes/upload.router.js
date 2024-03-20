@@ -14,7 +14,7 @@ const downloadVideo = require("../utils/downloadVideo");
  * @access Private
  * @desc Fetch all uploads for homepage
  */
-router.get("/", isAuthenticated, async (req, res) => {
+router.get("/", async (req, res) => {
   const uploads = await Upload.find({});
   if (!uploads || uploads.length === 0)
     return res.status(404).json({ message: "No uploads found" });
