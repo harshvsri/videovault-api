@@ -32,8 +32,7 @@ router.get("/:id", async (req, res) => {
   if (!upload) return res.status(404).json({ message: "Upload not found" });
 
   // Download the video from Azure Blob Storage
-  const blobName = path.basename(upload.videoURL);
-  const videoStream = await downloadVideo(blobName);
+  const videoStream = await downloadVideo(upload.videoURL);
 
   // Set the content type and filename in the response headers
   res.setHeader("Content-Type", "video/mp4");
@@ -65,11 +64,20 @@ router.post(
   async (req, res) => {
     // Get the file details from the request object
     const { userID, title, description } = req.body;
-    console.log(req.files);
 
     // Check if the video and thumbnail files are present
     if (!req.files || !req.files.video || !req.files.thumbnail) {
       return res.status(400).json({ message: "Video and thumbnail required" });
+    }
+    // Video must not be grater that 50MB
+    if (req.files.video[0].size > 50 * 1024 * 1024) {
+      return res.status(400).json({ message: "Video must be less than 50MB" });
+    }
+    // Thumbnail must not be grater that 5MB
+    if (req.files.thumbnail[0].size > 5 * 1024 * 1024) {
+      return res
+        .status(400)
+        .json({ message: "Thumbnail must be less than 5MB" });
     }
 
     // Get the video and thumbnail file objects
@@ -77,10 +85,13 @@ router.post(
     const thumbnailFilePath = req.files.thumbnail[0].path;
 
     // Create a new upload then delete the files
-    uploadVideo(videoFilePath).then(() => {
+    await uploadVideo(videoFilePath).then(() => {
       fs.unlinkSync(videoFilePath);
     });
-    uploadThumbnail(thumbnailFilePath).then(() => {
+
+    let thumbnailURL = "";
+    await uploadThumbnail(thumbnailFilePath).then((url) => {
+      thumbnailURL = url;
       fs.unlinkSync(thumbnailFilePath);
     });
 
@@ -88,8 +99,8 @@ router.post(
       userID,
       title,
       description,
-      videoURL: videoFilePath,
-      thumbnailURL: thumbnailFilePath,
+      videoURL: path.basename(videoFilePath),
+      thumbnailURL: thumbnailURL,
     });
 
     // Update the user's uploads array
