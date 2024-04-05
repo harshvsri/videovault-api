@@ -69,11 +69,11 @@ router.post(
     if (!req.files || !req.files.video || !req.files.thumbnail) {
       return res.status(400).json({ message: "Video and thumbnail required" });
     }
-    // Video must not be grater that 50MB
+    // Video must not be greater than 50MB
     if (req.files.video[0].size > 50 * 1024 * 1024) {
       return res.status(400).json({ message: "Video must be less than 50MB" });
     }
-    // Thumbnail must not be grater that 5MB
+    // Thumbnail must not be greater than 5MB
     if (req.files.thumbnail[0].size > 5 * 1024 * 1024) {
       return res
         .status(400)

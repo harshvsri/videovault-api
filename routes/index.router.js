@@ -10,7 +10,7 @@ const isAuthenticated = require("../middlewares/isAuthenticated.middleware");
  * @desc Welcome message
  */
 router.get("/", (req, res) => {
-  res.status(200).json({ message: "Welcome to the API" });
+  res.status(200).json({ message: "Welcome to the VideoVaultAPI" });
 });
 
 /**

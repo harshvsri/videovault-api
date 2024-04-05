@@ -10,7 +10,7 @@ const User = require("../models/User.model");
  */
 const strategy = new LocalStrategy(async (username, password, done) => {
   const user = await User.findOne({ username: username });
-  if (!user) return done(null, false, { message: "Incorrect username" });
+  if (!user) return done(null, false, { message: "Username does not exists" });
 
   // Verify the password
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -28,7 +28,9 @@ passport.use(strategy);
  * Here we are storing the user's id in the session.
  */
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  process.nextTick(() => {
+    return done(null, user._id);
+  });
 });
 
 /** Deserialize user
@@ -38,8 +40,10 @@ passport.serializeUser((user, done) => {
  * That key here is the user id. In deserializeUser that key is matched with the database.
  * The fetched object is attached to the request object as req.user
  */
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  if (!user) return done(null, false);
-  return done(null, user);
+passport.deserializeUser((id, done) => {
+  process.nextTick(async () => {
+    const user = await User.findById(id);
+    if (!user) return done(null, false);
+    return done(null, user);
+  });
 });
