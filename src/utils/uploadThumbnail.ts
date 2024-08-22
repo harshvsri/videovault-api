@@ -1,11 +1,11 @@
-const {
+import {
   BlobServiceClient,
   generateBlobSASQueryParameters,
   StorageSharedKeyCredential,
   BlobSASPermissions,
-} = require("@azure/storage-blob");
-const fs = require("fs");
-const path = require("path");
+} from "@azure/storage-blob";
+import fs from "fs";
+import path from "path";
 
 async function uploadThumbnail(thumbnailFilePath) {
   try {
@@ -30,10 +30,7 @@ async function uploadThumbnail(thumbnailFilePath) {
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     const thumbnailStream = fs.createReadStream(thumbnailFilePath);
 
-    await blockBlobClient.uploadStream(
-      thumbnailStream,
-      thumbnailStream.byteLength
-    );
+    await blockBlobClient.uploadStream(thumbnailStream);
     console.log(`Thumbnail "${blobName}" uploaded successfully.`);
 
     // Generate SAS URL for the uploaded thumbnail

@@ -1,6 +1,6 @@
-const { BlobServiceClient } = require("@azure/storage-blob");
-const fs = require("fs");
-const path = require("path");
+import { BlobServiceClient } from "@azure/storage-blob";
+import fs from "fs";
+import path from "path";
 
 async function uploadVideo(videoFilePath) {
   try {
@@ -23,7 +23,7 @@ async function uploadVideo(videoFilePath) {
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     const videoStream = fs.createReadStream(videoFilePath);
 
-    await blockBlobClient.uploadStream(videoStream, videoStream.byteLength);
+    await blockBlobClient.uploadStream(videoStream);
     console.log(`Video "${blobName}" uploaded successfully.`);
   } catch (error) {
     console.error("Error uploading video:", error);

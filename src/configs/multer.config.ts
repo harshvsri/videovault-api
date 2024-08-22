@@ -1,5 +1,6 @@
-const multer = require("multer");
-const date = Date.now();
+import multer from "multer";
+import { v4 as uuid } from "uuid";
+import fs from "fs/promises";
 
 /** Multer Configuration
  * Ensures that file uploads are properly handled.
@@ -10,10 +11,12 @@ const storage = multer.diskStorage({
     cb(null, "uploads");
   },
   filename: (req, file, cb) => {
-    cb(null, `${date}-${file.originalname}`);
+    cb(null, `${uuid()}-${file.originalname}`);
   },
 });
 
-const upload = multer({ storage: storage });
+export const upload = multer({ storage: storage });
 
-module.exports = upload;
+export const removeVideo = async (videoPath) => {
+  await fs.unlink(videoPath);
+};
