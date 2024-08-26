@@ -1,13 +1,9 @@
-import fs from "fs";
+import axios from "axios";
 import { Router } from "express";
-import { v4 as uuidv4 } from "uuid";
-import { exec } from "child_process";
-import { upload, removeVideo } from "../configs/multer.config";
-import { getFfmpegCmd } from "../configs/ffmpeg.config";
+import { upload } from "../configs/multer.config";
 import { prisma } from "../prisma";
 import { validateUpload, validateUploadPUT } from "../utils/validation";
-import { ClientCertificateCredential } from "@azure/identity";
-
+import { uploadBlob, removeBlob, deleteBlobs } from "../utils/azureBlob";
 const uploadRouter = Router();
 
 uploadRouter.post(
@@ -15,47 +11,36 @@ uploadRouter.post(
   upload.single("file"),
   validateUpload,
   async (req, res) => {
-    const videoPath = req.file.path;
+    const blobName = req.file.filename;
+    await uploadBlob(blobName);
 
-    const videoID = uuidv4();
-    const outputPath = `./uploads/${videoID}`;
-    // Ensure the output directory exists
-    if (!fs.existsSync(outputPath)) {
-      fs.mkdirSync(outputPath, { recursive: true });
+    console.log(`🔥 Triggering transcoder service`);
+    try {
+      const status = await axios.get(
+        `http://localhost:3001/transcode/${blobName}`
+      );
+      if (status.status !== 200) {
+        throw new Error("Transcoder service failed");
+      }
+      const videoURL = status.data.videoURL;
+
+      const upload = await prisma.upload.create({
+        data: {
+          ...req.body,
+          videoURL,
+          userID: req.user.id,
+        },
+      });
+
+      // Add the upload to the database after transcoding
+      res.status(201).json({ message: "Upload successful", upload });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error uploading video" });
     }
 
-    const hlsPath = `${outputPath}/index.m3u8`;
-
-    exec(
-      getFfmpegCmd(videoPath, outputPath, hlsPath),
-      async (err, stdout, stderr) => {
-        if (err) {
-          console.error(`Ffmpeg err: ${err}`);
-          console.error(stderr);
-
-          removeVideo(videoPath);
-          return res.status(500).json({ error: "Failed to process video" });
-        }
-        console.log(stdout);
-        removeVideo(videoPath);
-        const videoURL = `http://localhost:3000/uploads/${videoID}/index.m3u8`;
-
-        try {
-          const upload = await prisma.upload.create({
-            data: {
-              ...req.body,
-              videoURL,
-              userID: req.user.id,
-            },
-          });
-          res
-            .status(200)
-            .json({ message: "Video processed successfully", upload });
-        } catch (err) {
-          res.status(500).json({ message: "Error uploading video" });
-        }
-      }
-    );
+    await removeBlob(`./uploads/${blobName}`);
+    console.log(`🗑️ Removed ${blobName}`);
   }
 );
 
@@ -109,6 +94,16 @@ uploadRouter.delete("/:id", async (req, res) => {
     },
   });
   res.status(200).json({ message: "Upload deleted successfully", upload });
+});
+
+uploadRouter.delete("/all", async (req, res) => {
+  const { masterPass } = req.body;
+  if (masterPass !== process.env.MASTER_PASS) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+  await deleteBlobs();
+  res.status(200).json({ message: "All blobs deleted" });
 });
 
 export default uploadRouter;

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { prisma } from "../prisma";
-import { User } from "@prisma/client";
 import { comparePassword, createJWT, hashPassword } from "../utils/auth";
 import { uniqueUsername, validateCredential } from "../utils/validation";
 
@@ -8,7 +7,7 @@ const authRouter = Router();
 
 const signup = async (req, res) => {
   const { username, password, fullName } = req.body;
-  const user: User = await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       username,
       password: await hashPassword(password),

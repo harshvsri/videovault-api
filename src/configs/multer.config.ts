@@ -1,22 +1,15 @@
 import multer from "multer";
 import { v4 as uuid } from "uuid";
-import fs from "fs/promises";
+import path from "path";
 
-/** Multer Configuration
- * Ensures that file uploads are properly handled.
- * Middleware for handling `multipart/form-data`, which is primarily used for uploading files.
- */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads");
   },
   filename: (req, file, cb) => {
-    cb(null, `${uuid()}-${file.originalname}`);
+    const ext = path.extname(file.originalname);
+    cb(null, `${uuid()}${ext}`);
   },
 });
 
 export const upload = multer({ storage: storage });
-
-export const removeVideo = async (videoPath) => {
-  await fs.unlink(videoPath);
-};
