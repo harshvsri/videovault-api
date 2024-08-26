@@ -3,7 +3,12 @@ import { Router } from "express";
 import { upload } from "../configs/multer.config";
 import { prisma } from "../prisma";
 import { validateUpload, validateUploadPUT } from "../utils/validation";
-import { uploadBlob, removeBlob, deleteBlobs } from "../utils/azureBlob";
+import {
+  uploadBlob,
+  removeBlob,
+  deleteBlobs,
+  deleteBlob,
+} from "../utils/azureBlob";
 const uploadRouter = Router();
 
 uploadRouter.post(
@@ -37,10 +42,11 @@ uploadRouter.post(
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error uploading video" });
+    } finally {
+      await deleteBlob(blobName);
+      await removeBlob(`./uploads/${blobName}`);
+      console.log(`🗑️ Removed ${blobName}`);
     }
-
-    await removeBlob(`./uploads/${blobName}`);
-    console.log(`🗑️ Removed ${blobName}`);
   }
 );
 
