@@ -1,6 +1,6 @@
 # VideoVault-Server
 
-Backend API for the VideoVault platform, a dynamic video sharing and streaming platform inspired by YouTube. It handles video uploads, user authentication, comments, likes, and search functionality.
+Backend API for the VideoVault platform, a dynamic video sharing and streaming platform.
 
 ## Contribution Guide
 
@@ -17,17 +17,17 @@ If you're a beginner and want to contribute to this project, follow these steps:
    - **Create a .env file**: Create a new file in the server directory of the project named `.env`. Inside the `.env` file, add the following lines:
 
      ```properties
-     DB_URL = "mongodb://127.0.0.1:27017/kinetoDB"
-     SESSION_SECRET = "this is a secret"
+     JWT_SECRET=<your secret here>
      ```
 
      These are environment variables that the server needs to run properly. Make sure to replace the values with your actual database URL and session secret.
+     A lot of the server's functionality depends on the environment variables. which are not intended to be shared. Make sure to add the `.env` file to your `.gitignore` file.
 
    - **Install Dependencies**: Navigate to the server directory and install the necessary dependencies using npm:
 
      ```bash
-     cd server
-     npm install
+     cd videovault-server
+     npm i
      ```
 
    - **Install Nodemon Globally**: If you're planning to make changes in the server, it's recommended to install Nodemon globally. Nodemon is a utility that will monitor for any changes in your source and automatically restart your server. You can install it using npm:
