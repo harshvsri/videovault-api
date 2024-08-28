@@ -1,4 +1,4 @@
-import { body, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 import { prisma } from "../prisma";
 
 export const validateCredential = [
@@ -65,6 +65,20 @@ export const validateUploadPUT = [
       return res
         .status(400)
         .json({ message: "Missing upload details", errors: errors.array() });
+    }
+    next();
+  },
+];
+
+export const validateWatch = [
+  query("limit").optional(),
+  query("page").optional(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ message: "Invalid query parameters", errors: errors.array() });
     }
     next();
   },

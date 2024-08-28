@@ -17,12 +17,13 @@ uploadRouter.post(
   validateUpload,
   async (req, res) => {
     const blobName = req.file.filename;
+    console.log(`Uploading ${blobName}...`);
     await uploadBlob(blobName);
 
-    console.log(`🔥 Triggering transcoder service`);
+    console.log(`Triggering transcoder service...`);
     try {
       const status = await axios.get(
-        `http://localhost:3001/transcode/${blobName}`
+        `${process.env.TRANSCODER_URL}${blobName}`
       );
       if (status.status !== 200) {
         throw new Error("Transcoder service failed");
@@ -45,7 +46,6 @@ uploadRouter.post(
     } finally {
       await deleteBlob(blobName);
       await removeBlob(`./uploads/${blobName}`);
-      console.log(`🗑️ Removed ${blobName}`);
     }
   }
 );

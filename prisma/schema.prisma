@@ -8,7 +8,10 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
   username String   @unique
   password String
   email    String?  @unique
@@ -17,7 +20,10 @@ model User {
 }
 
 model Upload {
-  id           Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
   title        String
   description  String?
   videoURL     String
