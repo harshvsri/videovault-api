@@ -22,7 +22,9 @@ app.use("/auth", authRouter);
 app.use("/api", protectedRoute, apiRouter);
 
 app.listen(PORT, () => {
-  console.log(`Server is listening at http://localhost:${PORT}`);
+  console.log(
+    `Server is listening at http://localhost:${PORT} (internal docker port)`
+  );
 });
 
 app.use(error404Handler);

@@ -1,5 +1,5 @@
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:5173"],
+  origin: true,
   credentials: true,
   optionsSuccessStatus: 200,
   exposedHeaders: ["Access-Control-Allow-Origin"],
